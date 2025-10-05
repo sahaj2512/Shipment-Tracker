@@ -6,6 +6,7 @@ import './Auth.css';
 const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
+    email: '',
     password: '',
     confirmPassword: ''
   });
@@ -35,7 +36,7 @@ const Register = () => {
       return;
     }
 
-    const result = await register(formData.username, formData.password);
+    const result = await register(formData.username, formData.email, formData.password);
     if (result.success) {
       // Redirect handled by context and router
     }
@@ -59,6 +60,19 @@ const Register = () => {
             required
             minLength="3"
             placeholder="Enter your username"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            placeholder="Enter your email"
           />
         </div>
 

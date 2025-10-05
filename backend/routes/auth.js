@@ -12,30 +12,32 @@ const signToken = (id) => {
 // Register
 router.post('/register', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
 
-    if (!username || !password) {
+    if (!username || !email || !password) {
       return res.status(400).json({
         status: 'fail',
-        message: 'Please provide username and password'
+        message: 'Please provide username, email and password'
       });
     }
 
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ 
+      $or: [{ username }, { email }] 
+    });
     if (existingUser) {
       return res.status(400).json({
         status: 'fail',
-        message: 'User already exists'
+        message: 'User with this username or email already exists'
       });
     }
 
-    const user = await User.create({ username, password });
+    const user = await User.create({ username, email, password });
     const token = signToken(user._id);
 
     res.status(201).json({
       status: 'success',
       token,
-      data: { user: { id: user._id, username: user.username } }
+      data: { user: { id: user._id, username: user.username, email: user.email } }
     });
   } catch (error) {
     res.status(400).json({
@@ -48,20 +50,23 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { username, email, password } = req.body;
 
-    if (!username || !password) {
+    if ((!username && !email) || !password) {
       return res.status(400).json({
         status: 'fail',
-        message: 'Please provide username and password'
+        message: 'Please provide username/email and password'
       });
     }
 
-    const user = await User.findOne({ username }).select('+password');
+    const user = await User.findOne({ 
+      $or: [{ username }, { email }] 
+    }).select('+password');
+    
     if (!user || !(await user.correctPassword(password, user.password))) {
       return res.status(401).json({
         status: 'fail',
-        message: 'Incorrect username or password'
+        message: 'Incorrect username/email or password'
       });
     }
 
@@ -70,7 +75,7 @@ router.post('/login', async (req, res) => {
     res.status(200).json({
       status: 'success',
       token,
-      data: { user: { id: user._id, username: user.username } }
+      data: { user: { id: user._id, username: user.username, email: user.email } }
     });
   } catch (error) {
     res.status(400).json({
