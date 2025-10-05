@@ -16,6 +16,12 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  // Set the base URL for all API calls - USE PORT 5002
+  useEffect(() => {
+    axios.defaults.baseURL = 'http://localhost:5002';
+    console.log('✅ API base URL set to:', axios.defaults.baseURL);
+  }, []);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
@@ -30,17 +36,26 @@ export const AuthProvider = ({ children }) => {
   const login = async (username, password) => {
     try {
       setError('');
-      const response = await axios.post('/api/auth/login', { username, password });
+      console.log('🔐 Attempting login to:', axios.defaults.baseURL);
+      
+      const response = await axios.post('/api/auth/login', { 
+        username, 
+        password 
+      });
       
       const { token, data } = response.data;
+      
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(data.user));
       setUser(data.user);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
+      console.log('✅ Login successful');
       return { success: true };
+      
     } catch (error) {
-      const message = error.response?.data?.message || 'Login failed';
+      console.error('❌ Login failed:', error);
+      const message = error.response?.data?.message || 'Login failed. Please try again.';
       setError(message);
       return { success: false, message };
     }
@@ -49,17 +64,26 @@ export const AuthProvider = ({ children }) => {
   const register = async (username, password) => {
     try {
       setError('');
-      const response = await axios.post('/api/auth/register', { username, password });
+      console.log('📝 Attempting registration to:', axios.defaults.baseURL);
+      
+      const response = await axios.post('/api/auth/register', { 
+        username, 
+        password 
+      });
       
       const { token, data } = response.data;
+      
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(data.user));
       setUser(data.user);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
+      console.log('✅ Registration successful');
       return { success: true };
+      
     } catch (error) {
-      const message = error.response?.data?.message || 'Registration failed';
+      console.error('❌ Registration failed:', error);
+      const message = error.response?.data?.message || 'Registration failed. Please try again.';
       setError(message);
       return { success: false, message };
     }

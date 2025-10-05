@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import './Auth.css';
 
 const Login = ({ onToggleMode }) => {
   const [formData, setFormData] = useState({
     username: '',
+    email: '',
     password: ''
   });
   const { login, error, setError } = useAuth();
@@ -22,7 +24,13 @@ const Login = ({ onToggleMode }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const result = await login(formData.username, formData.password);
+    
+    if (!formData.username && !formData.email) {
+      setError('Please provide either username or email');
+      return;
+    }
+    
+    const result = await login(formData.username, formData.email, formData.password);
     if (result.success) {
       // Redirect handled by router
     }
@@ -36,15 +44,26 @@ const Login = ({ onToggleMode }) => {
         {error && <div className="error-message">{error}</div>}
         
         <div className="form-group">
-          <label htmlFor="username">Username</label>
+          <label htmlFor="username">Username or Email</label>
           <input
             type="text"
             id="username"
             name="username"
             value={formData.username}
             onChange={handleChange}
-            required
-            minLength="3"
+            placeholder="Enter username or email"
+          />
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="email">Email (Alternative)</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter email address"
           />
         </div>
 
@@ -67,9 +86,9 @@ const Login = ({ onToggleMode }) => {
 
         <p className="auth-toggle">
           Don't have an account?{' '}
-          <span onClick={onToggleMode} className="toggle-link">
+          <Link to="/register" className="toggle-link">
             Register here
-          </span>
+          </Link>
         </p>
       </form>
     </div>
