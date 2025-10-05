@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react'; // Added useCallback
 import axios from 'axios';
 import ShipmentCard from './ShipmentCard';
 import Pagination from '../Common/Pagination';
@@ -16,13 +16,21 @@ const ShipmentList = () => {
     sortBy: 'createdAt:desc'
   });
 
-  const fetchShipments = async (page = 1) => {
+  // Wrap fetchShipments in useCallback to avoid infinite re-renders
+  const fetchShipments = useCallback(async (page = 1) => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
         page: page.toString(),
         limit: '8',
         ...filters
+      });
+
+      // Remove empty filters
+      Object.keys(filters).forEach(key => {
+        if (filters[key] === '') {
+          params.delete(key);
+        }
       });
 
       const response = await axios.get(`/api/shipments?${params}`);
@@ -34,11 +42,11 @@ const ShipmentList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]); // Add filters as dependency
 
   useEffect(() => {
     fetchShipments(1);
-  }, [filters]);
+  }, [fetchShipments]); // Now fetchShipments is stable
 
   const handlePageChange = (page) => {
     fetchShipments(page);
