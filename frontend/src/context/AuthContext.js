@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   // Set the base URL for all API calls - USE PORT 5002
   useEffect(() => {
-    axios.defaults.baseURL = 'http://localhost:5002';
+    axios.defaults.baseURL = 'https://shipment-tracker-backend-tx90.onrender.com';
     console.log('✅ API base URL set to:', axios.defaults.baseURL);
   }, []);
 
