@@ -114,12 +114,10 @@ const connectDB = async () => {
   try {
     console.log('🔄 Connecting to MongoDB...');
     
-    await mongoose.connect(MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      serverSelectionTimeoutMS: 5000, // Timeout after 5 seconds
-      socketTimeoutMS: 45000, // Close sockets after 45 seconds of inactivity
-    });
+    awaitmongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ MongoDB connection failed:", err.message));
+
 
     console.log('✅ MongoDB connected successfully');
     
